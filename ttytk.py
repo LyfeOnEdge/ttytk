@@ -50,8 +50,8 @@ class Layer:
 class renderer:
 	def __init__(self, columns, rows, char_size, character_atlas, render_scale = RENDER_SCALE):
 		self.width,self.height=columns,rows
-		self.foreground=Layer(width,height)
-		self.background=Layer(width,height)
+		self.foreground=Layer(self.width,self.height)
+		self.background=Layer(self.width,self.height)
 		self.char_size = char_size
 		self.character_atlas = Image.open(character_atlas)
 		self.atlas_width = self.character_atlas.size[0]/char_size
