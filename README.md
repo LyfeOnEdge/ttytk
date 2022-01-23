@@ -1,0 +1,1 @@
+To install requirements run `python3 -m pip install --upgrade -r requirements.txt`
