@@ -25,7 +25,7 @@ for y in range(len(CHARACTER_LAYOUT)):
 	for x in range(len(CHARACTER_LAYOUT[y])):
 		CHARACTER_MAP[CHARACTER_LAYOUT[y][x]]=(x,y) #The rows and 
 
-def get_char_location_in_atlas(c): return CHARACTER_MAP.get(c,CHARACTER_MAP.get('?')) #Default to ? for unknown characters
+def get_char_location_in_char_map(c): return CHARACTER_MAP.get(c,CHARACTER_MAP.get('?')) #Default to ? for unknown characters
 
 #bottom layer must be equal or greater in size than top layer
 def merge_layers(top_layer:array, bottom_layer:array):
@@ -83,7 +83,7 @@ class renderer:
 	def render_text(self, column:int, row:int, text:str):
 		x_offset = 0
 		for char in text:
-			self.write_char(column+x_offset,row,self.get_atlas_char_at(*get_char_location_in_atlas(char)))
+			self.write_char(column+x_offset,row,self.get_atlas_char_at(*get_char_location_in_char_map(char)))
 			x_offset += 1
 
 class app(tk.Tk):
