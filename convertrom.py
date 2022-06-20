@@ -19,7 +19,7 @@ if __name__ == "__main__":
   CHAR_SIZE = 8
   COLUMNS = 32
   ROWS = int(CHARS / COLUMNS)
-  out = zeros([ROWS * CHAR_SIZE, COLUMNS * CHAR_SIZE, 3], dtype=uint8)
+  out = zeros([ROWS * CHAR_SIZE, COLUMNS * CHAR_SIZE, 4], dtype=uint8)
   next = 0
   rawbytes = fromfile(INFILENAME, dtype=uint8)
   for c1 in range(ROWS):
@@ -31,8 +31,8 @@ if __name__ == "__main__":
         next+=1
         for x2 in range(CHAR_SIZE):
           val = bits[x2]
-          if val == 0:
-            # mark transparent, else pixel
-            out[y1 + y2, x1 + x2] = [255, 255, 255]
+          if val == 1:
+            # pixel on, else transparent
+            out[y1 + y2, x1 + x2] = [255, 255, 255, 255]
 
   Image.fromarray(out).save(OUTFILENAME)
