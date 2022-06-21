@@ -5,6 +5,7 @@ from numpy import fromfile
 from numpy import uint8
 from numpy import unpackbits
 from numpy import zeros
+from numpy import stack
 from PIL import Image
 from time import time
 
@@ -32,8 +33,8 @@ if __name__ == "__main__":
                 # Convert 8 bytes to 8x8 bitmap and write to output array
                 bitmap = unpackbits(rawbytes[x + _y : x + 8 + _y])
                 out[y : y + 8, x : x + 8] = bitmap.reshape(8, 8)
-        out = out * 255
-        return Image.fromarray(out).convert("RGBA")
+        # Convert from depth of 1 to 4
+        return Image.fromarray(stack((out * 255,) * 4, axis=-1))
 
     def slow_method():
         next = 0
@@ -63,5 +64,5 @@ if __name__ == "__main__":
     fast = long_time(fast_method)
     slow = long_time(slow_method)
     print(f"Slow took {slow}, Fast took {fast}, Fast is {slow/fast} times as quick")
-
-    fast_method().save(OUTFILENAME)
+    slow_method().save(OUTFILENAME.replace(".", "_slow."))
+    fast_method().save(OUTFILENAME.replace(".", "_fast."))
