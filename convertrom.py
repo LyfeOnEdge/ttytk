@@ -7,7 +7,6 @@ from numpy import unpackbits
 from numpy import zeros
 from numpy import stack
 from PIL import Image
-from time import time
 
 if __name__ == "__main__":
     # The charrom is organized with two banks of 256 characters each (512 chars total).
