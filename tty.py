@@ -26,21 +26,39 @@ TERMINAL_ROWS = 25
 WINDOW_BORDER = 10  # Border between terminal and outer edge of window
 WINDOW_BORDER_COLOR = (0.5, 0.5, 0.5)
 RENDER_SCALE = 3  # Scales the terminal
-BACKGROUND_COLOR = (24/256, 64/256, 244/256, 0)
+# BACKGROUND_COLOR = (24/256, 64/256, 244/256, 0)
+BACKGROUND_COLOR = (0,0,0,0)
 
 # Map corresponding to the tileset image
-CHARACTER_LAYOUT = [
-    ["@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
-     "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_"],
-    [" ", "!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
-     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?"],
-]
+# Commodore layout
+# CHARACTER_LAYOUT = [
+#     ["@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+#      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_"],
+#     [" ", "!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+#      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?"],
+# ]
 
+# Demo Layout
+CHARACTER_LAYOUT = [
+    [" ", "!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/"],
+    ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?"],
+    ["@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"],
+    ["P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_"],
+    ["`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"],
+    ["p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\t"],
+]
+CHAR_MAP_STRING = ""
+for r in CHARACTER_LAYOUT:
+    for c in r:
+        CHAR_MAP_STRING += f" {c}"
+    CHAR_MAP_STRING += "\n"
+CHAR_MAP_STRING = CHAR_MAP_STRING.rstrip("\n")
 # Generate a lookup table to easily find the position in the map from a char
 CHARACTER_MAP = {}
 for y in range(len(CHARACTER_LAYOUT)):
     for x in range(len(CHARACTER_LAYOUT[y])):
         CHARACTER_MAP[CHARACTER_LAYOUT[y][x]] = (x, y)
+
 
 
 def get_char_location_in_char_map(c, return_unknown="?"):
@@ -217,7 +235,7 @@ class app(ShowBase):
             TERMINAL_COLUMNS,
             TERMINAL_ROWS,
             CHAR_SIZE,
-            "charrom.png",
+            "character_map.png",
             RENDER_SCALE,
         )
 
@@ -286,15 +304,39 @@ if __name__ == "__main__":
         (255, 0, 0, 255),
     ]
 
-    application.renderer.text_color = (80, 128, 248, 255)
-    application.renderer.render_text(
-        4, 1, "**** COMMODORE 64 BASIC V2 ****"
-    )
-    application.renderer.render_text(
-        1, 3, "64K RAM SYSTEM  38911 BASIC BYTES FREE"
-    )
+    def prep_task(task):
+        application.renderer.clear()
+        for i in range(4):
+            application.renderer.text_color = text_colors[i]
+            application.renderer.render_text(3 + i, 5 + i, "01234")
+            application.renderer.bg_color = bg_colors[i]
+            application.renderer.write_block(5 + i, 5 + i)
+        application.renderer.text_color = (0, 255, 0, 255)
+        # Draw wrapping text floor / ceiling
+        application.renderer.render_text(0, 23, "0123456789?.x!=" * 8, wrap_x=True)
+        return task.done
 
+    def work_task(task):  # This will be your mainloop
+        application.renderer.text_color = (
+            random.uniform(0, 255),
+            random.uniform(0, 255),
+            random.uniform(0, 255),
+            random.uniform(0, 255),
+        )
+        t = time.time()
+        # application.renderer.text_color = (0, 0, 255, 255)
+        application.renderer.render_text(13, 11, str(t - start_time)[:16])
+        # Delay at least 1/100th of a second
+        taskMgr.doMethodLater(0.008, work_task, "update_task")
+        return task.done
+
+    application.renderer.text_color = (127, 127, 255, 255)
     application.renderer.render_text(
-        0, 5, "READY."
+        10, 2, "--------------------\nAvailable Characters\n--------------------"
     )
+    application.renderer.text_color = (255, 255, 255, 255)
+    application.renderer.render_text(3, 8, CHAR_MAP_STRING)
+
+    taskMgr.doMethodLater(4.9, prep_task, "prep_task")
+    taskMgr.doMethodLater(5, work_task, "update_task")
     application.run()  # Window Mainloop
